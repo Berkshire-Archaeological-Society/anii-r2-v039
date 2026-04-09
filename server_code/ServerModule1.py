@@ -4,7 +4,7 @@
 # provides callable functions for Anvil Webapp
 # this is now in a github repository https://github.com/Berkshire-Archaeological-Society/anii-r2-server.git
 ##
-# Version 071
+# Version 072
 ##
 # Author: Tony Bakker
 ##
@@ -116,16 +116,16 @@ def table_update(table_name,table):
     logmsg("DEBUG",sql_cmd)
     logmsg("DEBUG",all_values)
     try:
-       ret = cur.execute(sql_cmd,all_values)
-       conn.commit()
-       msg = "OK. " + table_name +  table_name_id + " " + " " + row[table_name_id] + " successfully updated."
-       logmsg("INFO",msg)
+      ret = cur.execute(sql_cmd,all_values)
+      conn.commit()
+      msg = "OK. " + table_name +  table_name_id + " " + " " + row[table_name_id] + " successfully updated."
+      logmsg("INFO",msg)
     except pymysql.Error as err:
       msg = format(err)
       msg = table_name + " " + table_name_id + " " + row[table_name_id] + " update to database failed: " + msg
       logmsg("ERROR", msg)
     message = message + msg + "\n"
-  
+
   return message
 
 def table_insert(table_name,table):
@@ -137,7 +137,7 @@ def table_insert(table_name,table):
   conn.ping(reconnect=True)
   table.replace({np.nan: None},inplace=True)
   table.replace(r'^\s+$', None, regex=True,inplace=True)
-  
+
   if table_name == "sys_userrole":
     # special case for sys_userrole table
     # set table_name_id to Email and make Email Column values all lowercase
@@ -149,7 +149,7 @@ def table_insert(table_name,table):
   else:
     # all other tables will have the table_name_id set to "<table_name>Id"
     table_name_id = table_name.capitalize() + "Id"
-  
+
   cols = "`,`".join([str(i) for i in table.columns.tolist()])
 
   cur = conn.cursor()
@@ -174,18 +174,18 @@ def table_insert(table_name,table):
     logmsg("DEBUG",sql_cmd)
     logmsg("DEBUG",list(row.values()))
     try:
-       ret = cur.execute(sql_cmd,list(row.values()))
-       logmsg("DEBUG",ret)
-       conn.commit()
-       msg = "OK. " + table_name + " " + table_name_id + " " + row[table_name_id] + " successfully inserted."
-       logmsg("INFO",msg)
+      ret = cur.execute(sql_cmd,list(row.values()))
+      logmsg("DEBUG",ret)
+      conn.commit()
+      msg = "OK. " + table_name + " " + table_name_id + " " + row[table_name_id] + " successfully inserted."
+      logmsg("INFO",msg)
     except pymysql.Error as err:
       msg = format(err)
       msg = table_name + " " + table_name_id + " " + row[table_name_id] + " insert to database failed: " + msg
       logmsg("ERROR", msg)
       msg = "ERROR. " + msg
     message = message + msg + "\n"
-  
+
   return message
 
 # ------------------------
@@ -206,11 +206,11 @@ def user_authentication():
   user = anvil.users.get_user()
   ip_address = str(anvil.server.context.client.ip)
   msg = "Login connection from " + ip_address + ", User " + str(user['email'])
-  
+
   # Check MariaDB for user authorisation (i.e. which role has the person in accessing the DB)
   # This role will the set in the Anvil user table, which can then be checked in the client and server by a simple call to 
   # anvil.users.get_user(), although to always check this form the server (more secure and accurate)
-  
+
   logmsg("INFO",msg)
   return ip_address
 
@@ -249,7 +249,7 @@ def create_csv(data_list,col_order,csv_name):
   # create the column order list from col_order
   if col_order is not None:
     col_list = sorted(list(col_order[0].keys()),key=lambda x: col_order[0][x])
-  
+
   # check if data_list is empty
   if len(data_list) == 0:
     # data_list is empty so need to create at least a empty list with Columns Headings
@@ -257,7 +257,7 @@ def create_csv(data_list,col_order,csv_name):
     for column_name in col_list:
       data[column_name] = None
     data_list = [data]
-  
+
   # Create Pandas DataFrame
   df_tmp = pd.DataFrame(data_list) 
 
@@ -266,7 +266,7 @@ def create_csv(data_list,col_order,csv_name):
     df_tmp.drop("DBAcontrol",axis='columns',inplace=True)
   if "DBAcontrol" in col_list:
     col_list.remove("DBAcontrol")
- 
+
   # remove the select comlun
   if "select" in df_tmp.columns:
     df_tmp.drop("select",axis='columns',inplace=True)
@@ -282,19 +282,19 @@ def create_csv(data_list,col_order,csv_name):
   # Automatically converts to the best possible types
   #logmsg("DEBUG",df.dtypes)
   df = df.convert_dtypes()
-  
+
   # convert pandas dataframe to string (cannot send all datatypes to client so best to make all of type string)
   # pdf_result = pdf_result.mask(pdf_result.astype(str).eq('None') & df.isna(), '')
   df = df.astype('str')
-      
+
   # make all None values empty string (otherwise they will be sent to client as 'None' string, which is not good for client side processing)
   df.replace(to_replace='None', value='',inplace=True)
   df.replace(to_replace='<NA>', value='',inplace=True)
-  
+
   # 2. Get the CSV content as a string
   # Use .encode('utf-8') to convert the string to bytes, which BlobMedia requires
   csv_bytes = df.to_csv(index=False).encode('utf-8')
-  
+
   # 3. Create the Anvil Media Object
   # - 'text/csv' is the MIME type for a CSV file.
   # - csv_bytes is the content.
@@ -319,7 +319,7 @@ def print_form(form,site_id,table_name,action,data_list,page_info):
   #print(site_id, table_name, action)
   #print(data_list)
   pdf_form = PdfRenderer(filename='Anchurus_list_form.pdf',landscape=True,page_size='A3').render_form(form,site_id,table_name,data_list,action,page_info)
-#  pdf_form = PDFRenderer(filename='Anchurus_list_form.pdf',landscape=True,page_size='A3').render_form(form,site_id,table_name,data_list,action,page_info)
+  #  pdf_form = PDFRenderer(filename='Anchurus_list_form.pdf',landscape=True,page_size='A3').render_form(form,site_id,table_name,data_list,action,page_info)
   return pdf_form
 
 @anvil.server.callable
@@ -334,7 +334,7 @@ def save_work_areas(work_areas_list,site_id):
 def send_email(subject,body,recipient,from_address=None):
   #
   if from_address is None:
-    from_address = config.get("default","email_from_address",fallback="no-reply@berksarch.co.uk")
+    from_address = config.get("email","email_from_address",fallback="no-reply@berksarch.co.uk")
   #
   # 1. Create the message container
   msg = EmailMessage()
@@ -355,7 +355,7 @@ def send_email(subject,body,recipient,from_address=None):
 
   msg = "Sent email to " + recipient + ". Subj: " + subject + ". "
   logmsg("DEBUG",msg)
-    
+
   return 
 
 # --------------------------------------------------
@@ -390,7 +390,7 @@ def execute_sql_command(sql_cmd):
 
         # Automatically converts to the best possible types
         pdf_result = pdf_result.convert_dtypes()
-      
+
         # 1. Identify numeric columns (int and float) - replace NaN with 0
         num_cols = pdf_result.select_dtypes(include=['number']).columns
         pdf_result[num_cols] = pdf_result[num_cols].fillna(0)
@@ -1329,9 +1329,12 @@ anvil.server.connect("server_HGRHEN6VHS3TZUER3QF6XVSG-RSU3U7R2ORMFMQUN")
 config = configparser.ConfigParser()
 config.read('anchurus2.cfg')
 
+
 sysinfo = {}
 sysinfo["loglevel"] = config.get("default","loglevel",fallback="INFO").upper()
-sysinfo["email_from_address"] = config.get("default","email_from_address",fallback="no-reply@berksarch.co.uk")
+
+sysinfo["email_from_address"] = config.get("email","email_from_address",fallback="no-reply@berksarch.co.uk")
+logmsg("DEBUG",sysinfo["email_from_address"]
 
 database_connect_info = {}
 database_connect_info["host"] =  config.get("database","host",fallback="localhost")
