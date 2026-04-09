@@ -4,7 +4,7 @@
 # provides callable functions for Anvil Webapp
 # this is now in a github repository https://github.com/Berkshire-Archaeological-Society/anii-r2-server.git
 ##
-# Version 072
+# Version 073
 ##
 # Author: Tony Bakker
 ##
@@ -185,7 +185,7 @@ def table_insert(table_name,table):
       logmsg("ERROR", msg)
       msg = "ERROR. " + msg
     message = message + msg + "\n"
-
+  
   return message
 
 # ------------------------
@@ -206,11 +206,11 @@ def user_authentication():
   user = anvil.users.get_user()
   ip_address = str(anvil.server.context.client.ip)
   msg = "Login connection from " + ip_address + ", User " + str(user['email'])
-
+  
   # Check MariaDB for user authorisation (i.e. which role has the person in accessing the DB)
   # This role will the set in the Anvil user table, which can then be checked in the client and server by a simple call to 
   # anvil.users.get_user(), although to always check this form the server (more secure and accurate)
-
+  
   logmsg("INFO",msg)
   return ip_address
 
@@ -335,7 +335,7 @@ def send_email(subject,body,recipient,from_address=None):
   #
   if from_address is None:
     from_address = config.get("email","email_from_address",fallback="no-reply@berksarch.co.uk")
-  logmsg("DEBUG",from_address)
+
   #
   # 1. Create the message container
   msg = EmailMessage()
@@ -354,7 +354,7 @@ def send_email(subject,body,recipient,from_address=None):
   except Exception as e:
     logmsg("ERROR",f"{e}")
 
-  msg = "Sent email to " + recipient + ". Subj: " + subject + ". "
+  msg = "Sent email to " + recipient + ". Subj: " + subject + ". From: " + from_address
   logmsg("DEBUG",msg)
     
   return 
