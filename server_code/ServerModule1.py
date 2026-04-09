@@ -1492,7 +1492,7 @@ else:
             % (client_info["organisation"],anvil.server.get_app_origin()))
     anvil.server.call("send_email","Anchurus-II system administrator",body,email)
 logmsg('INFO',msg)
-msg = "Email from address = " + email_from_address
+msg = "Email from address = " + sysinfo["email_from_address"]
 logmsg("INFO",msg)
 
 #send_email("Anvil app server startup","Startup completed","tony.bakker@berksarch.co.uk",Global_email_from_address)
